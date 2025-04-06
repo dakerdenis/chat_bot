@@ -1,7 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\ClientAuthController;
+
 
 Route::middleware('auth.client')->group(function () {
     Route::get('/me', function (Request $request) {
@@ -9,4 +9,4 @@ Route::middleware('auth.client')->group(function () {
     });
 });
 
-Route::post('/client/login', [ClientAuthController::class, 'login']);
+
