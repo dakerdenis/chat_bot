@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientWebLoginController;
 use App\Http\Controllers\AdminLoginController;
+Route::redirect('/', '/client/login');
 
 Route::middleware('guest')->group(function () {
     Route::get('/client/login', [ClientWebLoginController::class, 'showLoginForm'])->name('client.login');
