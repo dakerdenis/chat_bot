@@ -10,6 +10,12 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('client.auth')->group(function () {
     Route::get('/client/dashboard', function () {
-        return 'Добро пожаловать в админ-панель клиента!';
+        $client = \App\Models\Client::find(session('client_id'));
+        return view('client.dashboard', compact('client'));
     });
+
+    Route::post('/client/logout', function () {
+        session()->forget('client_id');
+        return redirect()->route('client.login');
+    })->name('client.logout');
 });
