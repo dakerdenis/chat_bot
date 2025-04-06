@@ -57,7 +57,9 @@ class ClientWebLoginController extends Controller
         }
 
         // 📌 Обновляем last_active_at
-        $client->update(['last_active_at' => now()]);
+        $client->last_active_at = now();
+        $client->save();
+
 
         // 📝 Лог успешного входа
         Log::info('CLIENT LOGIN SUCCESS', [
