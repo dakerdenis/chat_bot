@@ -70,6 +70,8 @@ class ClientWebLoginController extends Controller
 
         // 🧠 Сохраняем client_id в сессию
         Session::put('client_id', $client->id);
+        Session::put('client_ip', $request->ip());
+
 
         return redirect('/client/dashboard');
     }
