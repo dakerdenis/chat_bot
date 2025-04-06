@@ -19,7 +19,19 @@ Route::middleware('admin.auth')->group(function () {
     });
 
     Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+
+    // 📦 Управление клиентами (добавляем сюда)
+    Route::prefix('admin')->group(function () {
+        Route::get('/clients', [App\Http\Controllers\AdminClientController::class, 'index'])->name('admin.clients.index');
+        Route::get('/clients/create', [App\Http\Controllers\AdminClientController::class, 'create'])->name('admin.clients.create');
+        Route::post('/clients', [App\Http\Controllers\AdminClientController::class, 'store'])->name('admin.clients.store');
+        Route::get('/clients/{client}', [App\Http\Controllers\AdminClientController::class, 'show'])->name('admin.clients.show');
+        Route::get('/clients/{client}/edit', [App\Http\Controllers\AdminClientController::class, 'edit'])->name('admin.clients.edit');
+        Route::put('/clients/{client}', [App\Http\Controllers\AdminClientController::class, 'update'])->name('admin.clients.update');
+        Route::delete('/clients/{client}', [App\Http\Controllers\AdminClientController::class, 'destroy'])->name('admin.clients.destroy');
+    });
 });
+
 
 Route::middleware('client.auth')->group(function () {
     Route::get('/client/dashboard', function () {

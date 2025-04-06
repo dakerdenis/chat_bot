@@ -1,16 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Админ-панель клиента</title>
-</head>
-<body>
-    <h2>Добро пожаловать, {{ $client->name }}</h2>
-    <p>Email: {{ $client->email }}</p>
+@extends('layouts.client')
 
-    <form method="POST" action="{{ route('client.logout') }}">
-        @csrf
-        <button type="submit">Выйти</button>
-    </form>
-</body>
-</html>
- 
+@section('title', 'Панель клиента')
+
+@section('content')
+    <h2>Добро пожаловать, {{ $client->name }}</h2>
+
+    <p>Email: {{ $client->email }}</p>
+    <p>Ваш тариф: <strong>{{ $client->plan }}</strong></p>
+    <p>Диалоги: {{ $client->dialog_used }} из {{ $client->dialog_limit }}</p>
+
+    <hr>
+
+    <h3>🔧 Что можно будет сделать здесь:</h3>
+    <ul>
+        <li>📄 Загрузка базы знаний</li>
+        <li>📊 Статистика диалогов</li>
+        <li>⚙️ Настройки аккаунта</li>
+    </ul>
+@endsection
