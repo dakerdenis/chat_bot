@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Вход для клиента</title>
 </head>
+
 <body>
     <h2>Вход в админ-панель</h2>
 
@@ -18,5 +20,13 @@
         <input type="password" name="password" placeholder="Пароль"><br><br>
         <button type="submit">Войти</button>
     </form>
+
+    @if ($errors->has('session'))
+        <div style="color:red;">
+            {{ $errors->first('session') }}
+        </div>
+    @endif
+
 </body>
+
 </html>
