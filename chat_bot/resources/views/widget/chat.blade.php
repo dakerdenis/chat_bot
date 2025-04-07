@@ -71,10 +71,11 @@
             text-align: left;
             color: green;
         }
+
         .bot.typing {
-    color: #888;
-    font-style: italic;
-}
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -158,10 +159,10 @@
             input.value = '';
             saveChat();
             const typing = document.createElement('div');
-typing.className = 'msg bot typing';
-typing.innerText = 'Бот печатает...';
-chat.appendChild(typing);
-chat.scrollTop = chat.scrollHeight;
+            typing.className = 'msg bot typing';
+            typing.innerText = 'Бот печатает...';
+            chat.appendChild(typing);
+            chat.scrollTop = chat.scrollHeight;
 
             const response = await fetch('/api/chat', {
                 method: 'POST',
