@@ -23,21 +23,13 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('client-chat', function ($request) {
             $client = $request->get('client');
-    
+        
             if (!$client) {
                 return Limit::perMinute(10)->by($request->ip());
             }
-    
-            // 🧠 Устанавливаем лимиты на основе тарифа
-            $limitsByPlan = [
-                'basic' => 10,
-                'standard' => 30,
-                'premium' => 60,
-            ];
-    
-            $limit = $limitsByPlan[$client->plan] ?? 10;
-    
-            return Limit::perMinute($limit)->by('client:' . $client->id);
+        
+            return Limit::perMinute($client->rate_limit)->by('client:' . $client->id);
         });
+        
     }
 }

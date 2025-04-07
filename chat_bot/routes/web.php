@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientWebLoginController;
 use App\Http\Controllers\AdminLoginController;
+use App\Models\Client;
+
 Route::redirect('/', '/client/login');
 
 Route::middleware('guest')->group(function () {
@@ -11,7 +13,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin/login', [AdminLoginController::class, 'login']);
 });
-
+Route::get('/chat-widget/{token}', function ($token) {
+    $client = Client::where('api_token', $token)->firstOrFail();
+    return view('widget.chat', compact('client'));
+});
 Route::middleware('admin.auth')->group(function () {
     Route::get('/admin/dashboard', function () {
         $admin = App\Models\Admin::find(session('admin_id'));

@@ -16,10 +16,11 @@ class ClientsTestSeeder extends Seeder
     public function run(): void
     {
         $plans = [
-            ['plan' => 'basic', 'limit' => 1000],
-            ['plan' => 'standard', 'limit' => 2000],
-            ['plan' => 'premium', 'limit' => 5000],
+            ['plan' => 'basic', 'limit' => 1000, 'rate_limit' => 20],
+            ['plan' => 'standard', 'limit' => 2000, 'rate_limit' => 60],
+            ['plan' => 'premium', 'limit' => 5000, 'rate_limit' => 100],
         ];
+        
     
         foreach (range(1, 5) as $i) {
             $selected = $plans[array_rand($plans)];
@@ -34,7 +35,9 @@ class ClientsTestSeeder extends Seeder
                 'plan' => $selected['plan'],
                 'dialog_limit' => $selected['limit'],
                 'dialog_used' => 0,
+                'rate_limit' => $selected['rate_limit'], // 💡
             ]);
+            
         }
     }
 }
