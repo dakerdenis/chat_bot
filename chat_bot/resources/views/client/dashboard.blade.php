@@ -8,7 +8,7 @@
     <p>Email: {{ $client->email }}</p>
     <p>Ваш тариф: <strong>{{ $client->plan }}</strong></p>
     <p>Диалоги: {{ $client->dialog_used }} из {{ $client->dialog_limit }}</p>
-
+    <p>Апи ключ: {{ $client->api_token }}</p>
     <hr>
 
     <h3>🔧 Что можно будет сделать здесь:</h3>
