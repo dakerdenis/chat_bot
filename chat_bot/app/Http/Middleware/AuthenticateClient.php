@@ -26,7 +26,6 @@ class AuthenticateClient
             'endpoint' => $request->path(),
             'method' => $request->method(),
             'payload' => json_encode($request->except(['password', 'api_token']), JSON_PARTIAL_OUTPUT_ON_ERROR),
-
             'ip_address' => $request->ip(),
             'created_at' => now(),
         ]);
