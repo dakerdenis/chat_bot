@@ -46,13 +46,27 @@ class ChatController extends Controller
     
         // 🧠 GPT-4o mini ответ
         try {
-            $response = OpenAI::chat()->create([
-                'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
-                'messages' => [
-                    ['role' => 'system', 'content' => 'Ты — дружелюбный помощник. Отвечай кратко, понятно и по делу.'],
-                    ['role' => 'user', 'content' => $userMessage],
-                ],
-            ]);
+            $prompts = DB::table('client_prompts')
+            ->where('client_id', $client->id)
+            ->limit(5)
+            ->get();
+        
+        $messages = [];
+        
+        // Добавляем кастомные промты клиента
+        foreach ($prompts as $prompt) {
+            $messages[] = ['role' => 'system', 'content' => $prompt->content];
+        }
+        
+        // Сообщение пользователя
+        $messages[] = ['role' => 'user', 'content' => $userMessage];
+        
+        // Запрос к OpenAI
+        $response = OpenAI::chat()->create([
+            'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+            'messages' => $messages,
+        ]);
+        
         
             $aiResponse = trim($response->choices[0]->message->content ?? '[Пустой ответ от AI]');
         } catch (Exception $e) {

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientWebLoginController;
 use App\Http\Controllers\AdminLoginController;
 use App\Models\Client;
+use App\Http\Controllers\ClientPromptController;
 
 Route::redirect('/', '/client/login');
 
@@ -43,7 +44,7 @@ Route::middleware('client.auth')->group(function () {
         $client = App\Models\Client::find(session('client_id'));
         return view('client.dashboard', compact('client'));
     });
-
+    Route::post('/client/prompts', [ClientPromptController::class, 'store'])->name('client.prompts.store');
     Route::post('/client/logout', function () {
         session()->forget('client_id');
         return redirect()->route('client.login');
