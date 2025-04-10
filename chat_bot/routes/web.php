@@ -6,7 +6,7 @@ use App\Http\Controllers\AdminLoginController;
 use App\Models\Client;
 use App\Http\Controllers\ClientPromptController;
 
-Route::redirect('/', '/client/login');
+
 
 Route::middleware('guest')->group(function () {
     Route::get('/client/login', [ClientWebLoginController::class, 'showLoginForm'])->name('client.login');
