@@ -75,4 +75,43 @@ class ClientWebLoginController extends Controller
 
         return redirect('/client/dashboard');
     }
+
+    public function showRegisterForm()
+{
+    return view('client.auth.register');
+}
+
+public function register(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:100',
+        'email' => 'required|email|unique:clients,email',
+        'password' => 'required|string|min:6|confirmed',
+        'domain' => 'required|string|max:255',
+    ]);
+
+    $client = \App\Models\Client::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'api_token' => \Illuminate\Support\Str::random(60),
+        'plan' => 'basic',
+        'dialog_limit' => 1000,
+        'dialog_used' => 0,
+        'rate_limit' => 30,
+        'language' => 'ru',
+        'is_active' => true,
+    ]);
+
+    // 💾 Привязка домена
+    \App\Models\ClientDomain::create([
+        'client_id' => $client->id,
+        'domain' => $request->domain,
+    ]);
+
+    session(['client_id' => $client->id]);
+
+    return redirect()->route('client.dashboard');
+}
+
 }

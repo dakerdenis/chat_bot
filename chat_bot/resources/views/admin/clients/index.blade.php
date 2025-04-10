@@ -21,6 +21,7 @@
                 <th>Диалоги</th>
                 <th>Статус</th>
                 <th>Действия</th>
+                <th>Домены</th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +41,19 @@
                             @method('DELETE')
                             <button type="submit" onclick="return confirm('Удалить клиента?')">🗑️</button>
                         </form>
+                    </td>
+                    <td>
+                        @if ($client->domains->isEmpty())
+                            <em>нет</em>
+                        @else
+                            {{ $client->domains->count() }} домен(а)
+                            <br>
+                            <small>
+                                @foreach ($client->domains as $domain)
+                                    <div>{{ $domain->domain }}</div>
+                                @endforeach
+                            </small>
+                        @endif
                     </td>
                 </tr>
             @endforeach

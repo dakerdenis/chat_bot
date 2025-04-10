@@ -16,4 +16,8 @@ class Client extends Model
     protected $hidden = [
         'password', 'api_token',
     ];
+    public function domains()
+{
+    return $this->hasMany(ClientDomain::class);
+}
 }

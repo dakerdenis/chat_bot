@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('dialog_used')->default(0);
             $table->integer('rate_limit')->default(30);             
             $table->boolean('is_active')->default(true);
+            $table->string('domain')->after('email');
             $table->timestamp('last_active_at')->nullable();
             $table->timestamps();
         });

@@ -5,19 +5,29 @@ use App\Http\Controllers\ClientWebLoginController;
 use App\Http\Controllers\AdminLoginController;
 use App\Models\Client;
 use App\Http\Controllers\ClientPromptController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\ClientRegisterController;
 
-
-
+Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::middleware('guest')->group(function () {
     Route::get('/client/login', [ClientWebLoginController::class, 'showLoginForm'])->name('client.login');
     Route::post('/client/login', [ClientWebLoginController::class, 'login']);
+    Route::get('/client/register', [ClientRegisterController::class, 'showForm'])->name('client.register');
+    Route::post('/client/register', [ClientRegisterController::class, 'register'])->name('client.register.submit');
+
     Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin/login', [AdminLoginController::class, 'login']);
+  Route::get('/client/register', [ClientRegisterController::class, 'showForm'])->name('client.register');
+    Route::post('/client/register', [ClientRegisterController::class, 'register'])->name('client.register.submit');
+    
 });
+
+
 Route::get('/chat-widget/{token}', function ($token) {
     $client = Client::where('api_token', $token)->firstOrFail();
     return view('widget.chat', compact('client'));
-});
+})->middleware('verify.client.domain');
+
 Route::middleware('admin.auth')->group(function () {
     Route::get('/admin/dashboard', function () {
         $admin = App\Models\Admin::find(session('admin_id'));
@@ -35,6 +45,13 @@ Route::middleware('admin.auth')->group(function () {
         Route::get('/clients/{client}/edit', [App\Http\Controllers\AdminClientController::class, 'edit'])->name('admin.clients.edit');
         Route::put('/clients/{client}', [App\Http\Controllers\AdminClientController::class, 'update'])->name('admin.clients.update');
         Route::delete('/clients/{client}', [App\Http\Controllers\AdminClientController::class, 'destroy'])->name('admin.clients.destroy');
+        Route::delete('/clients/{client}/domains/{domain_id}', function ($clientId, $domainId) {
+            \App\Models\ClientDomain::where('id', $domainId)
+                ->where('client_id', $clientId)
+                ->delete();
+        
+            return back()->with('success', 'Домен удалён!');
+        })->name('admin.clients.domains.destroy');
     });
 });
 
