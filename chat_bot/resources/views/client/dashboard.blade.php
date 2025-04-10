@@ -85,26 +85,41 @@
     <h4>📋 Список ваших промтов:</h4>
     <ul>
         @foreach ($prompts as $prompt)
-            <li style="margin-bottom: 10px;">
-                <form method="POST" action="{{ route('client.prompts.update', $prompt->id) }}">
-                    @csrf
-                    @method('PUT')
-
-                    <strong>{{ $prompt->title }}</strong><br>
-                    <textarea name="content" rows="2" style="width: 100%;">{{ $prompt->content }}</textarea><br>
-
-                    <button type="submit">💾 Сохранить</button>
-                </form>
-
-                <form method="POST" action="{{ route('client.prompts.destroy', $prompt->id) }}" style="display:inline">
-                    @csrf
-                    @method('DELETE')
-                    <button onclick="return confirm('Удалить этот промт?')" style="color: red;">🗑 Удалить</button>
-                </form>
-            </li>
-        @endforeach
+        <li style="margin-bottom: 10px;">
+            <strong>{{ $prompt->title }}</strong><br>
+            {{ $prompt->content }}<br>
+    
+            <button type="button" onclick="openEditModal({{ $prompt->id }}, '{{ addslashes($prompt->title) }}', `{{ addslashes($prompt->content) }}`)">✏️ Редактировать</button>
+    
+            <form method="POST" action="{{ route('client.prompts.destroy', $prompt->id) }}" style="display:inline">
+                @csrf
+                @method('DELETE')
+                <button onclick="return confirm('Удалить этот промт?')" style="color: red;">🗑 Удалить</button>
+            </form>
+        </li>
+    @endforeach
+    
     </ul>
 
+    <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:9999;">
+        <div style="background:white; width:90%; max-width:600px; margin:50px auto; padding:20px; border-radius:8px; position:relative;">
+            <h3>✏️ Редактировать промт</h3>
+            <form method="POST" id="editForm">
+                @csrf
+                @method('PUT')
+                <input type="hidden" id="editId">
+                <label>Название:</label><br>
+                <input type="text" id="editTitle" name="title" maxlength="100" readonly><br><br>
+    
+                <label>Текст:</label><br>
+                <textarea id="editContent" name="content" rows="4" style="width:100%;"></textarea><br><br>
+    
+                <button type="submit">💾 Сохранить</button>
+                <button type="button" onclick="closeEditModal()">❌ Отмена</button>
+            </form>
+        </div>
+    </div>
+    
     <script>
         const textarea = document.getElementById('prompt-content');
         const counter = document.getElementById('char-count');
@@ -149,6 +164,21 @@
             }
         });
     </script>
+<script>
+    function openEditModal(id, title, content) {
+        document.getElementById('editModal').style.display = 'block';
+        document.getElementById('editId').value = id;
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editContent').value = content;
+
+        const form = document.getElementById('editForm');
+        form.action = `/client/prompts/${id}`;
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+</script>
 
 
 
