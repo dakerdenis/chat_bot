@@ -88,45 +88,49 @@ class AdminClientController extends Controller
     }
     public function update(Request $request, Client $client)
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:clients,email,' . $client->id,
-            'plan' => 'required|in:trial,basic,standard,premium',
-            'password' => 'nullable|string|min:6',
-        ]);
-
-        $limits = [
-            'trial' => ['dialogs' => 500, 'rate' => 10],
-            'basic' => ['dialogs' => 1000, 'rate' => 20],
-            'standard' => ['dialogs' => 3000, 'rate' => 30],
-            'premium' => ['dialogs' => 6000, 'rate' => 60],
-        ];
-
-        $client->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'plan' => $request->plan,
-            'is_active' => $request->has('is_active'),
-            'dialog_limit' => $limits[$request->plan]['dialogs'],
-            'rate_limit' => $limits[$request->plan]['rate'],
-            'password' => $request->filled('password') ? Hash::make($request->password) : $client->password,
-        ]);
-
-
-        // Обновление существующего домена
+        // Если добавляется/редактируется домен — НЕ делать валидацию основной формы
+        if (!$request->filled('new_domain') && !$request->filled('edit_domain')) {
+            $request->validate([
+                'name' => 'required|string|max:100',
+                'email' => 'required|email|unique:clients,email,' . $client->id,
+                'plan' => 'required|in:trial,basic,standard,premium',
+                'password' => 'nullable|string|min:6',
+            ]);
+    
+            $limits = [
+                'trial' => ['dialogs' => 500, 'rate' => 10],
+                'basic' => ['dialogs' => 1000, 'rate' => 20],
+                'standard' => ['dialogs' => 3000, 'rate' => 30],
+                'premium' => ['dialogs' => 6000, 'rate' => 60],
+            ];
+    
+            $client->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'plan' => $request->plan,
+                'is_active' => $request->has('is_active'),
+                'dialog_limit' => $limits[$request->plan]['dialogs'],
+                'rate_limit' => $limits[$request->plan]['rate'],
+                'password' => $request->filled('password') ? Hash::make($request->password) : $client->password,
+            ]);
+        }
+    
+        // ✏️ Обновление существующего домена
         if ($request->filled('edit_domain_id') && $request->filled('edit_domain')) {
             ClientDomain::where('id', $request->edit_domain_id)
                 ->where('client_id', $client->id)
                 ->update(['domain' => trim($request->edit_domain)]);
         }
-
-        // Добавление нового домена
+    
+        // ➕ Добавление нового домена
         if ($request->filled('new_domain')) {
             ClientDomain::create([
                 'client_id' => $client->id,
                 'domain' => trim($request->new_domain),
             ]);
         }
-        return redirect()->route('admin.clients.index')->with('success', 'Клиент обновлён!');
+    
+        return back()->with('success', 'Обновление завершено');
     }
+    
 }

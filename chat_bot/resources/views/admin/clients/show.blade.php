@@ -10,6 +10,7 @@
     <p>Диалоги: {{ $client->dialog_used }} из {{ $client->dialog_limit }}</p>
     <p>Активация: {{ $client->is_active ? '✅ Да' : '❌ Нет' }}</p>
     <p>AI-упрощение использовано: <strong>{{ $compressions }}</strong> раз</p>
+    <p><strong>API-ключ:</strong> <code>{{ $client->api_token }}</code></p>
 
     <hr>
     <h3>📝 История запросов</h3>

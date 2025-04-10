@@ -9,7 +9,7 @@
     <p>Email: {{ $client->email }}</p>
     <p>Ваш тариф: <strong>{{ $client->plan }}</strong></p>
     <p>Диалоги: {{ $client->dialog_used }} из {{ $client->dialog_limit }}</p>
-    <p>Апи ключ: {{ $client->api_token }}</p>
+    {{-- <p>Апи ключ: {{ $client->api_token }}</p> --}}
     <p>Ограничение по запросам в минуту: {{ $client->rate_limit }}</p>
     <hr>
 
@@ -66,8 +66,10 @@
 
 
         <label>Текст промта (макс {{ $maxLength }} символов):</label><br>
-        <textarea id="prompt-content" name="content" rows="4" cols="50" maxlength="{{ $maxLength }}" required></textarea><br>
+
+        <textarea id="prompt-content" name="content" rows="4" cols="50" required style="border: 2px solid #ccc;"></textarea><br>
         <small>Символов: <span id="char-count">0</span> / {{ $maxLength }}</small><br><br>
+
 
         <button type="button" id="compress-btn">💡 Сжать с помощью ИИ</button>
         <div id="compress-status" style="font-size: 13px; margin-top: 5px;"></div>
@@ -85,24 +87,28 @@
     <h4>📋 Список ваших промтов:</h4>
     <ul>
         @foreach ($prompts as $prompt)
-        <li style="margin-bottom: 10px;">
-            <strong>{{ $prompt->title }}</strong><br>
-            {{ $prompt->content }}<br>
-    
-            <button type="button" onclick="openEditModal({{ $prompt->id }}, '{{ addslashes($prompt->title) }}', `{{ addslashes($prompt->content) }}`)">✏️ Редактировать</button>
-    
-            <form method="POST" action="{{ route('client.prompts.destroy', $prompt->id) }}" style="display:inline">
-                @csrf
-                @method('DELETE')
-                <button onclick="return confirm('Удалить этот промт?')" style="color: red;">🗑 Удалить</button>
-            </form>
-        </li>
-    @endforeach
-    
+            <li style="margin-bottom: 10px;">
+                <strong>{{ $prompt->title }}</strong><br>
+                {{ $prompt->content }}<br>
+
+                <button type="button"
+                    onclick="openEditModal({{ $prompt->id }}, '{{ addslashes($prompt->title) }}', `{{ addslashes($prompt->content) }}`)">✏️
+                    Редактировать</button>
+
+                <form method="POST" action="{{ route('client.prompts.destroy', $prompt->id) }}" style="display:inline">
+                    @csrf
+                    @method('DELETE')
+                    <button onclick="return confirm('Удалить этот промт?')" style="color: red;">🗑 Удалить</button>
+                </form>
+            </li>
+        @endforeach
+
     </ul>
 
-    <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:9999;">
-        <div style="background:white; width:90%; max-width:600px; margin:50px auto; padding:20px; border-radius:8px; position:relative;">
+    <div id="editModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:9999;">
+        <div
+            style="background:white; width:90%; max-width:600px; margin:50px auto; padding:20px; border-radius:8px; position:relative;">
             <h3>✏️ Редактировать промт</h3>
             <form method="POST" id="editForm">
                 @csrf
@@ -110,75 +116,92 @@
                 <input type="hidden" id="editId">
                 <label>Название:</label><br>
                 <input type="text" id="editTitle" name="title" maxlength="100" readonly><br><br>
-    
+
                 <label>Текст:</label><br>
                 <textarea id="editContent" name="content" rows="4" style="width:100%;"></textarea><br><br>
-    
+
                 <button type="submit">💾 Сохранить</button>
                 <button type="button" onclick="closeEditModal()">❌ Отмена</button>
             </form>
         </div>
     </div>
-    
+
     <script>
-        const textarea = document.getElementById('prompt-content');
-        const counter = document.getElementById('char-count');
-        const compressBtn = document.getElementById('compress-btn');
-        const status = document.getElementById('compress-status');
+const textarea = document.getElementById('prompt-content');
+const counter = document.getElementById('char-count');
+const compressBtn = document.getElementById('compress-btn');
+const status = document.getElementById('compress-status');
+const submitBtn = document.querySelector('form button[type="submit"]');
 
-        // Счётчик символов
-        textarea.addEventListener('input', () => {
-            counter.textContent = textarea.value.length;
+const MAX = {{ $maxLength }};
+
+function updateCharState() {
+    const len = textarea.value.length;
+    counter.textContent = `${len}`;
+    if (len > MAX) {
+        textarea.style.borderColor = 'red';
+        counter.style.color = 'red';
+        submitBtn.disabled = true;
+    } else {
+        textarea.style.borderColor = '#ccc';
+        counter.style.color = '';
+        submitBtn.disabled = false;
+    }
+}
+
+// Счётчик символов
+textarea.addEventListener('input', updateCharState);
+updateCharState(); // при загрузке страницы
+
+// Сжатие промта
+compressBtn.addEventListener('click', async () => {
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    status.textContent = '⏳ Сжимаем...';
+
+    try {
+        const response = await fetch('{{ route('client.prompts.compress') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            body: JSON.stringify({
+                text
+            }),
         });
 
-        // Сжатие промта
-        compressBtn.addEventListener('click', async () => {
-            const text = textarea.value.trim();
-            if (!text) return;
+        const data = await response.json();
 
-            status.textContent = '⏳ Сжимаем...';
+        if (data.success) {
+            textarea.value = data.result;
+            status.textContent = '✅ Сжато и вставлено!';
+            updateCharState(); // обновить счётчик и цвет
+        } else {
+            status.textContent = '❌ Ошибка: ' + (data.error ?? 'неизвестно');
+        }
+    } catch (error) {
+        status.textContent = '❌ Ошибка сети. Проверь соединение.';
+    }
+});
 
-            try {
-                const response = await fetch('{{ route('client.prompts.compress') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    body: JSON.stringify({
-                        text
-                    }),
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    textarea.value = data.result;
-                    counter.textContent = data.result.length;
-                    status.textContent = '✅ Сжато и вставлено!';
-                } else {
-                    status.textContent = '❌ Ошибка: ' + (data.error ?? 'неизвестно');
-                }
-            } catch (error) {
-                status.textContent = '❌ Ошибка сети. Проверь соединение.';
-            }
-        });
     </script>
-<script>
-    function openEditModal(id, title, content) {
-        document.getElementById('editModal').style.display = 'block';
-        document.getElementById('editId').value = id;
-        document.getElementById('editTitle').value = title;
-        document.getElementById('editContent').value = content;
+    <script>
+        function openEditModal(id, title, content) {
+            document.getElementById('editModal').style.display = 'block';
+            document.getElementById('editId').value = id;
+            document.getElementById('editTitle').value = title;
+            document.getElementById('editContent').value = content;
 
-        const form = document.getElementById('editForm');
-        form.action = `/client/prompts/${id}`;
-    }
+            const form = document.getElementById('editForm');
+            form.action = `/client/prompts/${id}`;
+        }
 
-    function closeEditModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-</script>
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+    </script>
 
 
 
