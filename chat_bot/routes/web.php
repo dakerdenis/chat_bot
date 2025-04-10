@@ -45,8 +45,14 @@ Route::middleware('client.auth')->group(function () {
         return view('client.dashboard', compact('client'));
     });
     Route::post('/client/prompts', [ClientPromptController::class, 'store'])->name('client.prompts.store');
+    Route::delete('/client/prompts/{id}', [ClientPromptController::class, 'destroy'])->name('client.prompts.destroy');
+    Route::put('/client/prompts/{id}', [ClientPromptController::class, 'update'])->name('client.prompts.update');
+
     Route::post('/client/logout', function () {
         session()->forget('client_id');
         return redirect()->route('client.login');
     })->name('client.logout');
+    Route::post('/client/prompts/compress', [\App\Http\Controllers\ClientPromptController::class, 'compress'])
+        ->middleware('client.auth')
+        ->name('client.prompts.compress');
 });
