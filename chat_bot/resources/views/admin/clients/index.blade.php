@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Клиенты</title>
-</head>
-<body>
+@extends('layouts.admin')
+
+@section('title', 'Клиенты')
+
+@section('content')
     <h2>Список клиентов</h2>
 
     <a href="{{ route('admin.clients.create') }}">➕ Добавить нового клиента</a>
+
+    @if (session('success'))
+        <p style="color:green">{{ session('success') }}</p>
+    @endif
 
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
@@ -42,5 +45,4 @@
             @endforeach
         </tbody>
     </table>
-</body>
-</html>
+@endsection
