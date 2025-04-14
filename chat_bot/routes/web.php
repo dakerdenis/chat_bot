@@ -17,9 +17,8 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin/login', [AdminLoginController::class, 'login']);
-  Route::get('/client/register', [ClientRegisterController::class, 'showForm'])->name('client.register');
+    Route::get('/client/register', [ClientRegisterController::class, 'showForm'])->name('client.register');
     Route::post('/client/register', [ClientRegisterController::class, 'register'])->name('client.register.submit');
-    
 });
 
 
@@ -49,7 +48,7 @@ Route::middleware('admin.auth')->group(function () {
             \App\Models\ClientDomain::where('id', $domainId)
                 ->where('client_id', $clientId)
                 ->delete();
-        
+
             return back()->with('success', 'Домен удалён!');
         })->name('admin.clients.domains.destroy');
     });

@@ -144,57 +144,57 @@
         });
 
         let isSending = false;
-// 📨 Отправка сообщений
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+        // 📨 Отправка сообщений
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-    if (isSending) return; // 🔒 Защита от двойного клика
-    isSending = true;
+            if (isSending) return; // 🔒 Защита от двойного клика
+            isSending = true;
 
-    document.getElementById('chat-sound').play();
+            document.getElementById('chat-sound').play();
 
-    const text = input.value.trim();
-    if (!text || text.length > 200) {
-        alert("Сообщение должно быть не более 200 символов.");
-        isSending = false;
-        return;
-    }
+            const text = input.value.trim();
+            if (!text || text.length > 200) {
+                alert("Сообщение должно быть не более 200 символов.");
+                isSending = false;
+                return;
+            }
 
-    chat.innerHTML += `<div class="msg me">${text}</div>`;
-    input.value = '';
-    saveChat();
+            chat.innerHTML += `<div class="msg me">${text}</div>`;
+            input.value = '';
+            saveChat();
 
-    const typing = document.createElement('div');
-    typing.className = 'msg bot typing';
-    typing.innerText = 'Бот печатает...';
-    chat.appendChild(typing);
-    chat.scrollTop = chat.scrollHeight;
+            const typing = document.createElement('div');
+            typing.className = 'msg bot typing';
+            typing.innerText = 'Бот печатает...';
+            chat.appendChild(typing);
+            chat.scrollTop = chat.scrollHeight;
 
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-TOKEN': token,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                message: text
-            })
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-TOKEN': token,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: text
+                    })
+                });
+
+                const data = await response.json();
+                typing.remove();
+                chat.innerHTML += `<div class="msg bot">${data.answer ?? '[ошибка ответа]'}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+                saveChat();
+            } catch (error) {
+                typing.remove();
+                chat.innerHTML += `<div class="msg bot">❌ Ошибка запроса</div>`;
+            } finally {
+                isSending = false; // 🔓 Снова разрешаем отправку
+            }
         });
-
-        const data = await response.json();
-        typing.remove();
-        chat.innerHTML += `<div class="msg bot">${data.answer ?? '[ошибка ответа]'}</div>`;
-        chat.scrollTop = chat.scrollHeight;
-        saveChat();
-    } catch (error) {
-        typing.remove();
-        chat.innerHTML += `<div class="msg bot">❌ Ошибка запроса</div>`;
-    } finally {
-        isSending = false; // 🔓 Снова разрешаем отправку
-    }
-});
 
         // ❌ Закрытие iframe по сообщению
         window.addEventListener('message', (e) => {
@@ -204,4 +204,5 @@ form.addEventListener('submit', async (e) => {
         });
     </script>
 </body>
+
 </html>
