@@ -127,65 +127,68 @@
     </div>
 
     <script>
-const textarea = document.getElementById('prompt-content');
-const counter = document.getElementById('char-count');
-const compressBtn = document.getElementById('compress-btn');
-const status = document.getElementById('compress-status');
-const submitBtn = document.querySelector('form button[type="submit"]');
+        const textarea = document.getElementById('prompt-content');
+        const counter = document.getElementById('char-count');
+        const compressBtn = document.getElementById('compress-btn');
+        const status = document.getElementById('compress-status');
+        const submitBtn = document.querySelector('form button[type="submit"]');
 
-const MAX = {{ $maxLength }};
+        const MAX = {{ $maxLength }};
 
-function updateCharState() {
-    const len = textarea.value.length;
-    counter.textContent = `${len}`;
-    if (len > MAX) {
-        textarea.style.borderColor = 'red';
-        counter.style.color = 'red';
-        submitBtn.disabled = true;
-    } else {
-        textarea.style.borderColor = '#ccc';
-        counter.style.color = '';
-        submitBtn.disabled = false;
-    }
-}
-
-// Счётчик символов
-textarea.addEventListener('input', updateCharState);
-updateCharState(); // при загрузке страницы
-
-// Сжатие промта
-compressBtn.addEventListener('click', async () => {
-    const text = textarea.value.trim();
-    if (!text) return;
-
-    status.textContent = '⏳ Сжимаем...';
-
-    try {
-        const response = await fetch('{{ route('client.prompts.compress') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-            body: JSON.stringify({
-                text
-            }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            textarea.value = data.result;
-            status.textContent = '✅ Сжато и вставлено!';
-            updateCharState(); // обновить счётчик и цвет
-        } else {
-            status.textContent = '❌ Ошибка: ' + (data.error ?? 'неизвестно');
+        function updateCharState() {
+            const len = textarea.value.length;
+            counter.textContent = `${len}`;
+            if (len > MAX) {
+                textarea.style.borderColor = 'red';
+                counter.style.color = 'red';
+                submitBtn.disabled = true;
+            } else {
+                textarea.style.borderColor = '#ccc';
+                counter.style.color = '';
+                submitBtn.disabled = false;
+            }
         }
-    } catch (error) {
-        status.textContent = '❌ Ошибка сети. Проверь соединение.';
-    }
-});
 
+        // Счётчик символов
+        textarea.addEventListener('input', updateCharState);
+        updateCharState(); // при загрузке страницы
+
+        // Сжатие промта
+        compressBtn.addEventListener('click', async () => {
+            const text = textarea.value.trim();
+            if (!text) return;
+            if (text.length > 1000) {
+                status.textContent = '❌ Слишком длинный текст. Максимум 1000 символов.';
+                return;
+            }
+
+            status.textContent = '⏳ Сжимаем...';
+
+            try {
+                const response = await fetch('{{ route('client.prompts.compress') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        text
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    textarea.value = data.result;
+                    status.textContent = '✅ Сжато и вставлено!';
+                    updateCharState(); // обновить счётчик и цвет
+                } else {
+                    status.textContent = '❌ Ошибка: ' + (data.error ?? 'неизвестно');
+                }
+            } catch (error) {
+                status.textContent = '❌ Ошибка сети. Проверь соединение.';
+            }
+        });
     </script>
     <script>
         function openEditModal(id, title, content) {
