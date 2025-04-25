@@ -48,28 +48,47 @@
         const form = document.getElementById('chat-form');
         const input = document.getElementById('user-input');
         const chatBox = document.getElementById('chat-box');
-    
+
+        let history = [];
+
         form.addEventListener('submit', async function(e) {
-            e.preventDefault(); // ⛔ не перезагружаем страницу
+            e.preventDefault();
             const text = input.value.trim();
-            if (!text) return;
-    
-            // 👤 Показываем сообщение пользователя
+
+            // 🚨 Ограничение по длине (не более 300 символов)
+            if (text.length === 0 || text.length > 300) {
+                alert('Пожалуйста, введите сообщение до 300 символов.');
+                return;
+            }
+
+            // 🚨 Ограничение на количество предложений (не более 3)
+            const sentences = text.split(/[.!?]/).filter(s => s.trim().length > 0);
+            if (sentences.length > 3) {
+                alert('Пожалуйста, напишите не более 2–3 предложений.');
+                return;
+            }
+
+            // Показываем сообщение пользователя
             const userMsg = document.createElement('div');
             userMsg.classList.add('text-end', 'mb-2');
             userMsg.innerHTML = `<span class="badge bg-primary">${text}</span>`;
             chatBox.appendChild(userMsg);
-    
-            input.value = ''; // очистка поля
-    
-            // 🤖 Добавляем сообщение-заглушку
+            input.value = '';
+
+            // Добавляем заглушку
             const botMsg = document.createElement('div');
             botMsg.classList.add('text-start', 'text-muted', 'mb-2');
             botMsg.textContent = '🤖 AI печатает...';
             chatBox.appendChild(botMsg);
             chatBox.scrollTop = chatBox.scrollHeight;
-    
-            // ⚡ Отправка запроса к API
+
+            // Сохраняем историю
+            history.push({
+                role: 'user',
+                content: text
+            });
+            if (history.length > 6) history.shift();
+
             try {
                 const response = await fetch('/api/public-chat', {
                     method: 'POST',
@@ -77,17 +96,46 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ message: text })
+                    body: JSON.stringify({
+                        history: history
+                    })
                 });
-    
+
                 const data = await response.json();
                 botMsg.textContent = data.answer ?? '[Ошибка ответа от AI]';
+
+                if (data.answer) {
+                    history.push({
+                        role: 'assistant',
+                        content: data.answer
+                    });
+                    if (history.length > 6) history.shift();
+                }
             } catch (error) {
                 botMsg.textContent = '❌ Ошибка соединения с AI.';
             }
         });
+
+
+        // 🕒 Автообновление страницы через 15 минут бездействия
+
+        let inactivityTimer;
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                location.reload(); // 🔄 перезагрузка страницы
+            }, 15 * 60 * 1000); // 15 минут = 900000 мс
+        }
+
+        // Сбрасываем таймер при любом действии пользователя
+        ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, false);
+        });
+
+        resetInactivityTimer(); // запускаем таймер при загрузке страницы
     </script>
-    
+
 
 </body>
 
