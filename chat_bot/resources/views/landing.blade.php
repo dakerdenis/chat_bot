@@ -90,7 +90,7 @@
             if (history.length > 6) history.shift();
 
             try {
-                const response = await fetch('/api/public-chat', {
+                const response = await fetch('/public/api/public-chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
