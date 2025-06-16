@@ -39,7 +39,7 @@
 
     // Создание iframe
     const iframe = document.createElement('iframe');
-    iframe.src = 'http://127.0.0.1:8000/chat-widget/' + token;
+    iframe.src = 'https://gpt.daker.az/chat-widget/' + token;
     Object.assign(iframe.style, {
         position: 'fixed',
         bottom: '90px',

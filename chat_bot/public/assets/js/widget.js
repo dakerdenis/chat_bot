@@ -85,7 +85,7 @@ form.addEventListener('submit', async (e) => {
     chat.scrollTop = chat.scrollHeight;
 
     try {
-        const response = await fetch('/api/chat', {
+        const response = await fetch('https://gpt.daker.az/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

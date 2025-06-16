@@ -66,12 +66,18 @@ try {
     Log::error('[AI Error]', [
         'message' => $e->getMessage(),
         'trace' => $e->getTraceAsString(),
-        'client_id' => $client->id,
+        'client_id' => $client->id ?? null,
         'input_message' => $userMessage,
+        'openai_messages' => $messages, // 👈 логируем полезный контекст
     ]);
 
-    $aiResponse = '[Ошибка AI-сервиса: ' . $e->getMessage() . ']';
+    return response()->json([
+        'error' => 'AI_EXCEPTION',
+        'message' => 'Произошла ошибка при обращении к AI',
+        'details' => $e->getMessage(), // 👈 удобно для отладки (убрать в проде)
+    ], 500);
 }
+
 
 // ✅ В любом случае — одинарный лог
 DB::table('client_usage_logs')->insert([
