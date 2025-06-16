@@ -8,7 +8,7 @@
 
     // Создание кнопки
     const button = document.createElement('div');
-    button.innerText = '💬';
+    button.innerHTML = '<img src="https://gpt.daker.az/public/assets/images/dai.png" alt="chat" style="width: 30px; height: 30px;" />';
     Object.assign(button.style, {
         position: 'fixed',
         bottom: '20px',
@@ -16,7 +16,7 @@
         width: '60px',
         height: '60px',
         borderRadius: '50%',
-        backgroundColor: '#4CAF50',
+        backgroundColor: '#1F9D96',
         color: 'white',
         fontSize: '28px',
         display: 'flex',
@@ -29,10 +29,10 @@
     });
 
     button.addEventListener('mouseover', () => {
-        button.style.backgroundColor = '#45a049';
+        button.style.backgroundColor = '#188a84';
     });
     button.addEventListener('mouseout', () => {
-        button.style.backgroundColor = '#4CAF50';
+        button.style.backgroundColor = '#1F9D96';
     });
 
     document.body.appendChild(button);
