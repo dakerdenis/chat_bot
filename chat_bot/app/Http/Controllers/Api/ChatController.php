@@ -46,7 +46,7 @@ try {
     $messages = [
         [
             'role' => 'system',
-            'content' => 'You are a helpful assistant. Answer briefly and clearly. Do not exceed 80–100 words. Structure replies in short bullet points if needed. Avoid lengthy explanations unless explicitly asked.',
+            'content' => 'You are a helpful assistant. Answer briefly and clearly. Do not exceed 80–100 words. Structure replies in short bullet points if needed. Avoid lengthy explanations unless explicitly asked. Answer on language on which client asked. and dont use * symbols',
         ]
     ];
 
